@@ -1,0 +1,4 @@
+admin,password,1234,address,1234,fctuc,true
+barbara,password,1234,address,1234,fctuc,false 
+ana,password,1234,address,1234,fctuc,true
+ze,password,1234,address,1234,fctuc,false
