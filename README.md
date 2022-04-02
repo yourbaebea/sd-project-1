@@ -11,6 +11,12 @@
 - Server ip port [debug]
 - Client
 
+# compile
+
+- create artifact (in intelj): file < Project Structure < Artifacts < + 
+- build project
+- java -jar {directorytojar}\file.jar [arguments here]
+
 # other stuff
 
 - https://github.com/barbaravieira99/projetoSD
