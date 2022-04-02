@@ -33,6 +33,7 @@ public class Client implements Runnable {
     String fakeusername;
     String fakepassword;
     boolean firstTime = true;
+    boolean flag3 = false;
 
     public Client(boolean debug) throws IOException {
         this.debug=debug;
@@ -108,17 +109,20 @@ public class Client implements Runnable {
                 send = "1 " + username + " " + password + " ";
                 //System.out.println(send);
             }
-            send = "1 " + fakeusername + " " + fakepassword + " ";
-            String[] aux = writeRead(cmndsocket);
-            if (aux[0].equals("success")) {
-                a = false;
-                current_dir = aux[1];
-                firstTime = false;
-                mainMenu(cmndsocket);
-            } else {
-                System.out.println("Wrong credentials. Please try again.");
-                this.firstTime = true;
+            if(!flag3) {
+                send = "1 " + fakeusername + " " + fakepassword + " ";
+                String[] aux = writeRead(cmndsocket);
+                if (aux[0].equals("success")) {
+                    a = false;
+                    current_dir = aux[1];
+                    firstTime = false;
+                    mainMenu(cmndsocket);
+                } else {
+                    System.out.println("Wrong credentials. Please try again.");
+                    this.firstTime = true;
+                }
             }
+            else mainMenu(cmndsocket);
 
         }
     }
@@ -154,30 +158,33 @@ public class Client implements Runnable {
                     break;
                 case 3:
                     //confirar portos e endereços do servidor
-                    System.out.println("Primary server new IP:");
-                    String ipPrimario = sc.nextLine();
-                    System.out.println("Secondary server new IP:");
-                    String ipSecundario = sc.nextLine();
-                    System.out.println("Primary server new port:");
-                    String portoPrimario = sc.nextLine();
-                    System.out.println("Secondary server new port:");
-                    String portoSecundario = sc.nextLine();
-                    ipprimary = ipPrimario;
-                    ipsecondary = ipSecundario;
-                    commandsocketprimary = Integer.parseInt(portoPrimario);
-                    commandsocketsecondary = Integer.parseInt(portoSecundario);
-                    try (Socket temp = new Socket(ipprimary, commandsocketprimary)) {
-                        cmndsocket = temp;
-                        workingserver = "primary";
-                        toDo();
-                    } catch (IOException e) {
-                        System.out.println("IO:" + e.getMessage());
-                        try (Socket temp = new Socket(ipsecondary, commandsocketsecondary)) {
+                    flag3 = true;
+                    boolean auxiliar = true;
+                    boolean cycle = true;
+                    while(auxiliar) {
+                        System.out.println("Primary server new IP:");
+                        String ipPrimario = sc.nextLine();
+                        System.out.println("Primary server new port:");
+                        String portoPrimario = sc.nextLine();
+                        ipprimary = ipPrimario;
+                        if(isNumber(portoPrimario))commandsocketprimary = Integer.parseInt(portoPrimario);
+                        else {
+                            while(cycle) {
+                                System.out.println("Please insert a valid port.");
+                                portoPrimario = sc.nextLine();
+                                if(isNumber(portoPrimario)){
+                                    commandsocketprimary = Integer.parseInt(portoPrimario);
+                                    cycle = false;
+                                }
+                            }
+                        }
+                        try (Socket temp = new Socket(ipprimary, commandsocketprimary)) {
                             cmndsocket = temp;
-                            workingserver = "secondary";
-                            toDo();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
+                            workingserver = "primary";
+                            auxiliar = false;
+                            return;
+                        } catch (IOException e) {
+                            System.out.println("Invalid port or IP. Please try again.");
                         }
                     }
                     break;
@@ -397,6 +404,17 @@ public class Client implements Runnable {
         String[] print = data.split("#");
         return print;
 
+    }
+    public static boolean isNumber(String str) {
+        if (str == null) {
+            return false;
+        }
+        try {
+            int num = Integer.parseInt(str);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
     boolean inputProtection(String input){

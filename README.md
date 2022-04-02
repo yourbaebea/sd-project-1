@@ -1,14 +1,23 @@
 # sd project 2021/22
 
-# server properties file
-the servers stores information on the folder Storage\primaryserver or Storage\secondaryserver inside the current path, make sure you are in the right path!
+### meta 1: 02-04-2022
+### meta 2: xx-xx-2022
+
+# links importantes
+- Relatório: https://docs.google.com/document/d/1unfcQwP5vCyjaWSZMamH9XdIAw1IwKNErWtUGzwy5MY/edit?usp=sharing
 
 # run
-- ucDrive {ip} {port} [debug]
-- ucDrive {ip} {port} [debug]
-- terminal [debug]
+- Server ip port [debug]
+- Server ip port [debug]
+- Client
 
-note: ip and port must match either primary or secondary server in server.properties
+# other stuff
+
+- https://github.com/barbaravieira99/projetoSD
+- https://github.com/AntoniossLopes/ucBusca
+- https://github.com/FranciscoJRSantos/iVoto
+
+#
 
 Ana Beatriz Marques, 2018274233
 

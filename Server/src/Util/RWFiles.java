@@ -20,11 +20,12 @@ public class RWFiles implements Runnable {
     static File txtfile;
     boolean debug = false;
 
-    public RWFiles(final List<Person> list, final Semaphore semaphore, String filename) {
+    public RWFiles(final List<Person> list, final Semaphore semaphore,String serverdir, String filename) {
         RWFiles.list = list;
         RWFiles.semaphore = semaphore;
-        txtfile= new File(filename +".txt");
-        file =  new File(filename +".obj");
+        if(debug) System.out.println(filename);
+        txtfile= new File(serverdir + filename +".txt");
+        file =  new File(serverdir +filename +".obj");
     }
 
     @Override

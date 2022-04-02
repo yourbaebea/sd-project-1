@@ -100,13 +100,15 @@ public class Server{
 
         serverConfig();
 
+        if(debug) System.out.println(server_dir);
+
 
         setConnectionUDP();
 
         Thread.sleep(1000);
 
         synchronized (list){
-            RWFiles myThread = new RWFiles(list,semaphore, server_dir +"\\"+ filename);
+            RWFiles myThread = new RWFiles(list,semaphore, server_dir +"\\", filename);
             rw_thread = new Thread(myThread);
             rw_thread.start();
         }
@@ -204,51 +206,31 @@ public class Server{
             server_port= secondary.port;
         }
         new Thread(() -> {
-            int count=0;
-            try (ServerSocket listenSocket = new ServerSocket(server_port)) {
-                if(main_server){
-                    System.out.println("TCP: listening on port "+ server_port);
-                    if(debug) System.out.println("LISTEN SOCKET=" + listenSocket);
-                }
-                while(true) {
-                    if(!main_server){
-                        if(!listenSocket.isClosed()){
-                            listenSocket.close();
-                            if(debug) System.out.println("This is not the Main Server, we are refusing connections, (for now it still works)");
+
+            while (true) {
+                if(main_server) {
+                    try (ServerSocket listenSocket = new ServerSocket(server_port)) {
+                        System.out.println("TCP: listening on port " + server_port);
+                        if (debug) System.out.println("LISTEN SOCKET=" + listenSocket);
+
+                        while (true) {
+                            Socket clientSocket = listenSocket.accept(); // BLOQUEANTE
+                            System.out.println("TCP: listening on port " + server_port);
+                            if (debug) System.out.println("CLIENT_SOCKET (created at accept())=" + clientSocket);
+                            System.out.println("TCP: new client connected, ip: " + clientSocket.getInetAddress().toString() + " port: " + clientSocket.getPort());
+                            new TCPConnection(clientSocket, this);
                         }
+                    } catch (IOException e) {
+                        System.out.println("Listen:" + e.getMessage());
+                    }
+                }
+                else {
+                    try {
                         Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
                     }
-                    else{
-                        if(count> primary.max_tcp){
-                            System.out.println("Max number of tcp connections, we are now refusing to connect until available");
-                            listenSocket.close();
-                            Thread.sleep(1000);
-                        }
-                        else{
-                            if(listenSocket.isClosed()){
-                                Socket clientSocket = listenSocket.accept(); // BLOQUEANTE
-                                System.out.println("TCP: listening on port "+ server_port);
-                                if(debug) System.out.println("CLIENT_SOCKET (created at accept())="+clientSocket);
-                                System.out.println("TCP: new client connected, ip: "+ clientSocket.getInetAddress().toString() + " port: "+ clientSocket.getPort());
-                                count++;
-                                new TCPConnection(clientSocket, this);
-                            }
-                            else{
-                                Socket clientSocket = listenSocket.accept(); // BLOQUEANTE
-                                if(debug) System.out.println("CLIENT_SOCKET (created at accept())="+clientSocket);
-                                count++;
-                                new TCPConnection(clientSocket, this);
-                            }
-
-                        }
-                    }
-
-
                 }
-            } catch(IOException e) {
-                System.out.println("Listen:" + e.getMessage());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }).start();
 
@@ -413,23 +395,23 @@ public class Server{
     public synchronized String uploadFile(Client c, InputStream in_file, String filename) throws IOException {
         if(!c.logged) return ERROR + "client is not logged in";
 
-         String[] temp= c.getCurrent().split(Matcher.quoteReplacement(System.getProperty("file.separator")));
+        String[] temp= c.getCurrent().split(Matcher.quoteReplacement(System.getProperty("file.separator")));
 
-         if(temp.length==0){
-             return ERROR + "user doesnt have permission to upload to this folder";
-         }
+        if(temp.length==0){
+            return ERROR + "user doesnt have permission to upload to this folder";
+        }
 
-         String value="";
-         for(String s : temp) {
-             if(s != null && !s.equals("")) {
-                 value=s;
-                 break;
-             }
-         }
+        String value="";
+        for(String s : temp) {
+            if(s != null && !s.equals("")) {
+                value=s;
+                break;
+            }
+        }
 
-         if(!value.equals(c.username)){
-             return ERROR + "not in client home folder, user doesnt have permission to upload from this folder";
-         }
+        if(!value.equals(c.username)){
+            return ERROR + "not in client home folder, user doesnt have permission to upload from this folder";
+        }
 
 
         File f = new File(server_dir+ c.getCurrent() +"\\"+ filename);
