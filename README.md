@@ -11,10 +11,6 @@
 - build project
 - java -jar {directorytojar}\file.jar [arguments here]
 
-# other stuff
-- https://github.com/barbaravieira99/projetoSD
-- https://github.com/AntoniossLopes/ucBusca
-- https://github.com/FranciscoJRSantos/iVoto
 
 # grade
 86%
